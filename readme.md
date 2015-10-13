@@ -1,5 +1,8 @@
 # hello-world-service
 
+[![Build Status](https://travis-ci.org/devos-2015/hello-world-service.svg)](https://travis-ci.org/devos-2015/hello-world-service)
+[![Dependencies](https://david-dm.org/devos-2015/hello-world-service.svg)](https://david-dm.org/badges/shields)
+
 This is an example of a node.js microservice
 
 ## Run it on your local node.js installation
