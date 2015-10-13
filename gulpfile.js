@@ -1,19 +1,22 @@
 'use strict';
 
+var util = require('util');
 var gulp = require('gulp');
 var shell = require('gulp-shell');
 var minimist = require('minimist');
 var runSequence = require('run-sequence');
+var TinyShipyardClient = require('tiny-shipyard-client');
 
 var args = minimist(process.argv.slice(2), { string: ['tag'] });
 var options = {
   serviceName: 'hello-world-service',
+  instances: 2,
   registryHost: '46.101.193.82',
   registryPort: '5000',
+  shipyardUrl: 'http://46.101.245.190:8080',
+  shipyardServiceKey: 'DnqWOkAiUb7YKn6htbJk8RkB8auuJ6fIs1A2',
   versionTag: /^v?\d+\.\d+\.\d+$/.test(args.tag) ? args.tag.replace(/^v/, '') : undefined // do we have a version tag?
 }
-
-console.log(options);
 
 gulp.task('test', function (done) {
   done(); // Nothing here yet ;-)
@@ -43,8 +46,24 @@ gulp.task('dockerize', function (done) {
   runSequence('start-registry-forwarder', 'build-container', 'tag-container', 'push-container', done);
 });
 
+gulp.task('deploy', function (done) {
+  var client = new TinyShipyardClient(options.shipyardUrl, options.shipyardServiceKey);
+  var imageName = util.format('%s:%s/%s:%s', options.registryHost, options.registryPort, options.serviceName, options.versionTag);
+  var promise = client.createContainer(imageName);
+  if (options.instances > 1) {
+    promise = promise.then(function (id) {
+      return client.scaleContainer(id, options.instances - 1);
+    });
+  }
+  promise.then(function () {
+    done();
+  }, function (error) {
+    done(error);
+  });
+});
+
 gulp.task('ci-build', function (done) {
-  runSequence.apply(null, options.versionTag ? ['test', 'dockerize', done] : ['test', done]);
+  runSequence.apply(null, options.versionTag ? ['test', 'dockerize', 'deploy', done] : ['test', done]);
 });
 
 gulp.task('default', ['test'], function () {});
