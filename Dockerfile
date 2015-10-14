@@ -1,4 +1,4 @@
-FROM node:4.1.2
+FROM mhart/alpine-node:4.2.1
 MAINTAINER https://github.com/devos-2015/hello-world-service
 
 RUN mkdir -p /usr/src/app
