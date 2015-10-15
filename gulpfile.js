@@ -5,8 +5,10 @@ var gulp = require('gulp');
 var shell = require('gulp-shell');
 var minimist = require('minimist');
 var runSequence = require('run-sequence');
+var liveServer = require('gulp-live-server');
 var TinyShipyardClient = require('tiny-shipyard-client');
 
+var server;
 var args = minimist(process.argv.slice(2), { string: ['tag'] });
 var options = {
   serviceName: 'hello-world-service',
@@ -20,6 +22,16 @@ var options = {
 
 gulp.task('test', function (done) {
   done(); // Nothing here yet ;-)
+});
+
+gulp.task('serve', function (done) {
+  server = server || liveServer.new('index.js');
+  server.start();
+  done();
+});
+
+gulp.task('watch', ['serve'], function () {
+  gulp.watch(['**/*.js', '!node_modules/**', '!gulpfile.js'], ['test', 'serve']);
 });
 
 gulp.task('start-registry-forwarder', function () {
@@ -66,4 +78,4 @@ gulp.task('ci-build', function (done) {
   runSequence.apply(null, options.versionTag ? ['test', 'dockerize', 'deploy', done] : ['test', done]);
 });
 
-gulp.task('default', ['test'], function () {});
+gulp.task('default', ['watch'], function () {});
