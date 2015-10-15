@@ -1,9 +1,12 @@
 var express = require('express');
+var cors = require('cors');
 
 var SERVICE_PORT = process.env.SERVICE_PORT || 3000;
-var SHUTDOWN_TIMEOUT = process.env.SHUTDOWN_TIMEOUT || (10000);
+var SHUTDOWN_TIMEOUT = process.env.SHUTDOWN_TIMEOUT || 10000;
 
 var app = express();
+
+app.use(cors());
 
 app.get('/', function (req, res) {
   res.send('Hello World');
