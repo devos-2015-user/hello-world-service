@@ -8,10 +8,12 @@ var runSequence = require('run-sequence');
 var liveServer = require('gulp-live-server');
 var TinyShipyardClient = require('tiny-shipyard-client');
 
+var pkg = require('./package.json');
+
 var server;
 var args = minimist(process.argv.slice(2), { string: ['tag'] });
 var options = {
-  serviceName: 'hello-world-service',
+  serviceName: pkg.name,
   instances: 2,
   registryHost: '46.101.193.82',
   registryPort: '5000',
